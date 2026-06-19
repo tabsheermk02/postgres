@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accounting Schema ERD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #f7f6f0;
+      --text-color: #3d3d3a;
+      --accent-color: #6366f1;
+      --accent-hover: #4f46e5;
+      --card-bg: #fdfdfc;
+      --card-border: #e6e5dd;
+      --badge-bg: #eeedfe;
+      --badge-text: #4f46e5;
+      --line-color-custom: #73726c;
+      --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.02);
+      --zoom: 100%;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #141413;
+      --text-color: #c2c0b6;
+      --accent-color: #818cf8;
+      --accent-hover: #6366f1;
+      --card-bg: #1e1e1d;
+      --card-border: #2e2e2d;
+      --badge-bg: #26215c;
+      --badge-text: #a5b4fc;
+      --line-color-custom: #9c9a92;
+      --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    header {
+      padding: 20px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--card-border);
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: var(--shadow);
+      transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .header-title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-title-row h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      background-color: var(--badge-bg);
+      color: var(--badge-text);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .header-subtitle {
+      margin: 0;
+      font-size: 0.85rem;
+      opacity: 0.7;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-group {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      background-color: var(--card-bg);
+      overflow: hidden;
+      transition: border-color 0.3s ease;
+    }
+
+    .btn {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-color);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-group .btn {
+      border: none;
+      border-radius: 0;
+      border-right: 1px solid var(--card-border);
+    }
+
+    .btn-group .btn:last-child {
+      border-right: none;
+    }
+
+    .btn:hover {
+      background-color: var(--bg-color);
+    }
+
+    .btn-primary {
+      background-color: var(--accent-color);
+      color: #ffffff;
+      border-color: var(--accent-color);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    /* Icon setup */
+    .icon {
+      width: 16px;
+      height: 16px;
+      stroke-width: 2;
+      stroke: currentColor;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      display: inline-block;
+    }
+
+    /* SVG Toggle Theme Icons */
+    [data-theme="dark"] .icon-sun { display: block; }
+    [data-theme="dark"] .icon-moon { display: none; }
+    [data-theme="light"] .icon-sun { display: none; }
+    [data-theme="light"] .icon-moon { display: block; }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 32px;
+      overflow: auto;
+    }
+
+    .view-wrapper {
+      width: 100%;
+      max-width: 1200px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 24px;
+      overflow: auto;
+      transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    #erd {
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #erd svg {
+      width: var(--zoom);
+      max-width: none;
+      height: auto;
+      display: block;
+      transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* CSS overrides for Mermaid ERD elements to fix contrast and styling in both themes */
+    #erd svg .entityBox,
+    #erd svg rect.entityBox,
+    #erd svg path.entityBox {
+      fill: var(--card-bg) !important;
+      stroke: var(--card-border) !important;
+      stroke-width: 1.5px !important;
+    }
+
+    #erd svg .entityLabel,
+    #erd svg text.entityLabel {
+      fill: var(--text-color) !important;
+      font-weight: 700 !important;
+      font-size: 14px !important;
+    }
+
+    /* Zebra striping backgrounds in table attribute rows */
+    #erd svg .row-rect-odd,
+    #erd svg rect.row-rect-odd,
+    #erd svg path.row-rect-odd,
+    #erd svg [class*="attributeBoxOdd"] {
+      fill: var(--bg-color) !important;
+      stroke: none !important;
+    }
+
+    #erd svg .row-rect-even,
+    #erd svg rect.row-rect-even,
+    #erd svg path.row-rect-even,
+    #erd svg [class*="attributeBoxEven"] {
+      fill: var(--card-bg) !important;
+      stroke: none !important;
+    }
+
+    /* Relationship connector lines */
+    #erd svg .relationshipLine,
+    #erd svg path.relationshipLine,
+    #erd svg line.relationshipLine {
+      stroke: var(--line-color-custom) !important;
+      stroke-opacity: 0.75 !important;
+      stroke-width: 1.5px !important;
+    }
+
+    /* Relationship label bubbles */
+    #erd svg .relationshipLabelBox {
+      fill: var(--card-bg) !important;
+      stroke: var(--card-border) !important;
+      rx: 6px !important;
+    }
+
+    #erd svg .relationshipLabel,
+    #erd svg text.relationshipLabel {
+      fill: var(--text-color) !important;
+      font-size: 11px !important;
+      font-weight: 600 !important;
+    }
+
+    /* Apply clean font to all rendered SVG text and ensure clear font sizing */
+    #erd svg text {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+    }
+
+    #erd svg .node text {
+      font-size: 13px !important;
+    }
+
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-color);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--card-border);
+      border: 2px solid var(--bg-color);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-color);
+    }
+
+    footer {
+      padding: 16px;
+      text-align: center;
+      font-size: 0.75rem;
+      opacity: 0.5;
+      border-top: 1px solid var(--card-border);
+      background: var(--card-bg);
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-left">
+      <div class="header-title-row">
+        <h1>Accounting Schema</h1>
+        <span class="badge">ERD Diagram</span>
+      </div>
+      <p class="header-subtitle">Database schema for accounting, journal entries, and audit logs.</p>
+    </div>
+    
+    <div class="controls">
+      <div class="btn-group">
+        <button id="zoom-out" class="btn" title="Zoom Out">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+        </button>
+        <button id="zoom-reset" class="btn" title="Reset Zoom">
+          <span style="font-size: 0.8rem; font-weight: 700;">100%</span>
+        </button>
+        <button id="zoom-in" class="btn" title="Zoom In">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+        </button>
+      </div>
+
+      <button id="theme-toggle" class="btn">
+        <!-- Sun icon (for dark mode active to toggle back to light) -->
+        <svg class="icon icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <!-- Moon icon (for light mode active to toggle to dark) -->
+        <svg class="icon icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <span id="theme-text">Toggle Mode</span>
+      </button>
+
+      <button id="export-svg" class="btn btn-primary">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        <span>Export SVG</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <div class="view-wrapper">
+      <div id="erd"></div>
+    </div>
+  </main>
+
+  <footer>
+    Rendered with Mermaid &bull; Interactive viewer layout designed by Antigravity
+  </footer>
+
+  <script type="module">
+    import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    // Theme state
+    let isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+
+    const diagram = `erDiagram
+      account_categories {
+        uuid id PK
+        string category_code
+        string category_name
+        bool is_deleted
+      }
+      chart_of_accounts {
+        uuid id PK
+        string name
+        string description
+        string legacy_mongo_id
+        string account_no
+        string account_code
+        string sub_account_code
+        uuid category_id FK
+        uuid sub_category_id FK
+        uuid parent_account_id FK
+        bool is_leaf
+        bool allow_posting
+        bool is_deleted
+        string status
+        number total_debit
+        number total_credit
+      }
+      chart_of_account_sources {
+        uuid id PK
+        uuid chart_of_account_id FK
+        string source
+      }
+      journal_entries {
+        uuid id PK
+        string legacy_mongo_id
+        string journal_entry_no
+        string source_type
+        string source_id(reference)
+        date transaction_date
+        string currency
+        string created_by
+        string created_by_name
+        string created_by_email
+        string created_by_type
+        string approved_by
+        string approved_by_name
+        string approved_by_email
+        string approved_by_type
+        timestamp approval_date
+        string approval_reason
+        bool is_manual
+        uuid pending_entry_id FK
+        uuid reversal_of_id FK
+      }
+      journal_lines {
+        uuid id PK
+        string legacy_mongo_id
+        uuid journal_entry_id FK
+        uuid account_id FK
+        uuid account_category_id FK
+        string line_type
+        string account_name
+        string account_code
+        string sub_account_code
+        string account_no
+        string description
+        numeric amount
+        string lob
+        string slob
+        string channel
+        string subCh
+        string subSubCh
+        string cost_center
+      }
+      counters {
+        string key PK
+        int seq
+      }
+      pending_entries {
+        uuid id PK
+        string legacy_mongo_id
+        string pending_entry_no
+        string status
+        string source_type
+        date transaction_date
+        string created_by
+        string created_by_name
+        string created_by_email
+        string created_by_type
+        string approved_by
+        string approved_by_name
+        string approved_by_email
+        string approved_by_type
+        timestamp approval_date
+        string approval_reason
+        uuid reversal_of_id FK
+        uuid journal_entry_id FK
+      }
+      pending_entry_lines {
+        uuid id PK
+        uuid pending_entry_id FK
+        uuid account_id FK
+        uuid account_category_id FK
+        string account_name
+        string account_code
+        string sub_account_code
+        string account_no
+        string line_type
+        numeric amount
+        string description
+        string lob
+        string slob
+        string channel
+        string subCh
+        string subSubCh
+        string cost_center
+      }
+      journal_event_mappings {
+        uuid id PK
+        string legacy_mongo_id
+        string event_name
+        int version
+        bool is_current
+        bool is_active
+        uuid previous_version_id FK
+      }
+      journal_event_mapping_lines {
+        uuid id PK
+        uuid journal_event_mapping_id FK
+        uuid account_id FK
+        string type
+        string field
+        int sort_order
+      }
+      failed_journal_entries {
+        uuid id PK
+        string legacy_mongo_id
+        string source_type
+        date transaction_date
+        jsonb prepared_payload
+        string failure_type
+        string status
+        string created_by
+        string created_by_name
+        string created_by_email
+        string created_by_type
+        string approved_by
+        string approved_by_name
+        string approved_by_email
+        string approved_by_type
+        timestamp approval_date
+        string approval_reason
+        uuid resolved_journal_entry_id FK
+      }
+      failed_journal_entry_lines {
+        uuid id PK
+        uuid failed_journal_entry_id FK
+        uuid account_id FK
+        uuid account_category_id FK
+        string line_type
+        numeric amount
+        string description
+        string lob
+        string slob
+        string channel
+        string subCh
+        string subSubCh
+        string cost_center
+        string line_failure_reason
+      }
+      audit_logs {
+        uuid id PK
+        string event_type
+        string table_name
+        string modified_by
+        string generic_id
+        timestamp modified_at
+      }
+      audit_log_data_changes {
+        uuid id PK
+        uuid audit_log_id FK
+        string path
+        string column_name
+        jsonb old_value
+        jsonb new_value
+      }
+      http_audit_logs {
+        uuid id PK
+        string method
+        string path
+        int status
+        int duration_ms
+        string user_id
+        jsonb user_agent_details
+        jsonb body_preview
+      }
+
+      account_categories ||--o{ chart_of_accounts : "category_id"
+      account_categories ||--o{ chart_of_accounts : "sub_category_id"
+      account_categories ||--o{ journal_lines : "account_category_id"
+      account_categories ||--o{ pending_entry_lines : "account_category_id"
+      account_categories ||--o{ failed_journal_entry_lines : "account_category_id"
+
+      chart_of_accounts ||--o{ chart_of_accounts : "parent_account_id"
+      chart_of_accounts ||--o{ chart_of_account_sources : "has sources"
+      chart_of_accounts ||--o{ journal_lines : "account_id"
+      chart_of_accounts ||--o{ pending_entry_lines : "account_id"
+      chart_of_accounts ||--o{ journal_event_mapping_lines : "account_id"
+      chart_of_accounts ||--o{ failed_journal_entry_lines : "account_id"
+
+      journal_entries ||--o{ journal_lines : "has lines"
+      journal_entries ||--o{ journal_entries : "reversal_of_id"
+      journal_entries |o--o{ pending_entries : "journal_entry_id"
+      journal_entries |o--o{ failed_journal_entries : "resolved_journal_entry_id"
+
+      pending_entries ||--o{ pending_entry_lines : "has lines"
+      pending_entries }o--|| journal_entries : "reversal_of_id"
+
+      journal_event_mappings ||--o{ journal_event_mapping_lines : "has lines"
+      journal_event_mappings ||--o{ journal_event_mappings : "previous_version_id"
+
+      failed_journal_entries ||--o{ failed_journal_entry_lines : "has lines"
+
+      audit_logs ||--o{ audit_log_data_changes : "has changes"
+    `;
+
+    async function drawDiagram(dark) {
+      const erdDiv = document.getElementById('erd');
+      erdDiv.innerHTML = '';
+      
+      await document.fonts.ready;
+      
+      // Use unique SVG ID to prevent cache/clash bugs when re-rendering
+      const uniqueId = `erd-svg-${Math.floor(Math.random() * 1000000)}`;
+      
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        fontFamily: '"Plus Jakarta Sans", "Anthropic Sans", sans-serif',
+        themeVariables: {
+          darkMode: dark,
+          fontSize: '14px', // Slightly larger font size for clearer text
+          fontFamily: '"Plus Jakarta Sans", "Anthropic Sans", sans-serif',
+          lineColor: dark ? '#9c9a92' : '#73726c',
+          textColor: dark ? '#c2c0b6' : '#3d3d3a',
+          primaryColor: dark ? '#2c2c2a' : '#f1efe8',
+          primaryBorderColor: dark ? '#5f5e5a' : '#b4b2a9',
+          secondaryColor: dark ? '#26215c' : '#eeedfe',
+          tertiaryColor: dark ? '#04342c' : '#e1f5ee',
+        },
+      });
+
+      try {
+        const { svg } = await mermaid.render(uniqueId, diagram);
+        erdDiv.innerHTML = svg;
+
+        // Custom post-processing to make table node corners rounded
+        document.querySelectorAll('#erd svg .node').forEach(node => {
+          const firstPath = node.querySelector('path[d]');
+          if (!firstPath) return;
+          const d = firstPath.getAttribute('d');
+          const nums = d.match(/-?[\d.]+/g)?.map(Number);
+          if (!nums || nums.length < 8) return;
+          const xs = [nums[0], nums[2], nums[4], nums[6]];
+          const ys = [nums[1], nums[3], nums[5], nums[7]];
+          const x = Math.min(...xs), y = Math.min(...ys);
+          const w = Math.max(...xs) - x, h = Math.max(...ys) - y;
+          const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          rect.setAttribute('x', x); rect.setAttribute('y', y);
+          rect.setAttribute('width', w); rect.setAttribute('height', h);
+          rect.setAttribute('rx', '8');
+          for (const a of ['fill', 'stroke', 'stroke-width', 'class', 'style']) {
+            if (firstPath.hasAttribute(a)) rect.setAttribute(a, firstPath.getAttribute(a));
+          }
+          firstPath.replaceWith(rect);
+        });
+
+        // Hide strokes around internal rows to keep them clean
+        document.querySelectorAll('#erd svg .row-rect-odd path, #erd svg .row-rect-even path').forEach(p => {
+          p.setAttribute('stroke', 'none');
+        });
+      } catch (err) {
+        console.error("Mermaid rendering failed:", err);
+        erdDiv.innerHTML = `<div style="color: #ef4444; padding: 20px; font-weight: 600;">Error rendering diagram: ${err.message}</div>`;
+      }
+    }
+
+    // Initial render
+    await drawDiagram(isDark);
+
+    // Zoom setup
+    let zoomLevel = 100;
+    const erdContainer = document.getElementById('erd');
+    
+    function updateZoom() {
+      erdContainer.style.setProperty('--zoom', `${zoomLevel}%`);
+      document.getElementById('zoom-reset').querySelector('span').textContent = `${zoomLevel}%`;
+    }
+
+    document.getElementById('zoom-in').addEventListener('click', () => {
+      if (zoomLevel < 200) {
+        zoomLevel += 10;
+        updateZoom();
+      }
+    });
+
+    document.getElementById('zoom-out').addEventListener('click', () => {
+      if (zoomLevel > 50) {
+        zoomLevel -= 10;
+        updateZoom();
+      }
+    });
+
+    document.getElementById('zoom-reset').addEventListener('click', () => {
+      zoomLevel = 100;
+      updateZoom();
+    });
+
+    // Theme toggle interaction
+    document.getElementById('theme-toggle').addEventListener('click', async () => {
+      isDark = !isDark;
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+      await drawDiagram(isDark);
+    });
+
+    // Export interaction
+    document.getElementById('export-svg').addEventListener('click', () => {
+      const svgEl = document.querySelector('#erd svg');
+      if (!svgEl) return;
+      const svgString = new XMLSerializer().serializeToString(svgEl);
+      const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const downloadLink = document.createElement('a');
+      downloadLink.href = url;
+      downloadLink.download = 'accounting_schema_erd.svg';
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>
