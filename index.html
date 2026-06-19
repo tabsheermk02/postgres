@@ -357,8 +357,8 @@
     import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
 
     // Theme state
-    let isDark = matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    let isDark = false;
+    document.documentElement.setAttribute('data-theme', 'light');
 
     const diagram = `erDiagram
       account_categories {
@@ -375,6 +375,7 @@
         string account_no
         string account_code
         string sub_account_code
+        string sourceId(this is array in mongo)
         uuid category_id FK
         uuid sub_category_id FK
         uuid parent_account_id FK
@@ -384,11 +385,6 @@
         string status
         number total_debit
         number total_credit
-      }
-      chart_of_account_sources {
-        uuid id PK
-        uuid chart_of_account_id FK
-        string source
       }
       journal_entries {
         uuid id PK
@@ -562,7 +558,6 @@
       account_categories ||--o{ failed_journal_entry_lines : "account_category_id"
 
       chart_of_accounts ||--o{ chart_of_accounts : "parent_account_id"
-      chart_of_accounts ||--o{ chart_of_account_sources : "has sources"
       chart_of_accounts ||--o{ journal_lines : "account_id"
       chart_of_accounts ||--o{ pending_entry_lines : "account_id"
       chart_of_accounts ||--o{ journal_event_mapping_lines : "account_id"
