@@ -363,36 +363,40 @@
     const diagram = `erDiagram
       account_categories {
         uuid id PK
-        string category_code
+        string category_code "UNIQUE INDEX"
         string category_name
         bool is_deleted
+        timestamp created_at
+        timestamp updated_at
       }
       chart_of_accounts {
         uuid id PK
         string name
         string description
         string legacy_mongo_id
-        string account_no
+        string account_no "UNIQUE INDEX (where is_deleted = false)"
         string account_code
         string sub_account_code
-        string sourceId(this is array in mongo)
-        uuid category_id FK
-        uuid sub_category_id FK
-        uuid parent_account_id FK
+        text[] source_ids
+        uuid category_id FK "FK, INDEX"
+        uuid sub_category_id FK "FK, INDEX"
+        uuid parent_account_id FK "FK, INDEX"
         bool is_leaf
         bool allow_posting
         bool is_deleted
         string status
-        number total_debit
-        number total_credit
+        numeric total_debit
+        numeric total_credit
+        timestamp created_at
+        timestamp updated_at
       }
       journal_entries {
         uuid id PK
         string legacy_mongo_id
-        string journal_entry_no
+        string journal_entry_no "UNIQUE INDEX"
         string source_type
-        string source_id(reference)
-        date transaction_date
+        string source_id "INDEX"
+        date transaction_date "INDEX"
         string currency
         string created_by
         string created_by_name
@@ -402,18 +406,19 @@
         string approved_by_name
         string approved_by_email
         string approved_by_type
-        timestamp approval_date
+        timestamp approved_at
         string approval_reason
         bool is_manual
-        uuid pending_entry_id FK
-        uuid reversal_of_id FK
+        uuid reversal_of_id FK "FK, INDEX"
+        timestamp created_at
+        timestamp updated_at
       }
       journal_lines {
         uuid id PK
         string legacy_mongo_id
-        uuid journal_entry_id FK
-        uuid account_id FK
-        uuid account_category_id FK
+        uuid journal_entry_id FK "FK, INDEX"
+        uuid account_id FK "FK, INDEX"
+        uuid account_category_id FK "FK, INDEX"
         string line_type
         string account_name
         string account_code
@@ -427,18 +432,26 @@
         string subCh
         string subSubCh
         string cost_center
+        timestamp created_at
+        timestamp updated_at
       }
       counters {
         string key PK
         int seq
+        timestamp created_at
+        timestamp updated_at
       }
       pending_entries {
         uuid id PK
         string legacy_mongo_id
-        string pending_entry_no
+        string pending_entry_no "UNIQUE INDEX"
         string status
         string source_type
-        date transaction_date
+        string source_id "INDEX"
+        date transaction_date "INDEX"
+        string currency
+        numeric total_debit
+        numeric total_credit
         string created_by
         string created_by_name
         string created_by_email
@@ -449,14 +462,23 @@
         string approved_by_type
         timestamp approval_date
         string approval_reason
-        uuid reversal_of_id FK
-        uuid journal_entry_id FK
+        string rejected_by
+        string rejected_by_name
+        string rejected_by_email
+        string rejected_by_type
+        timestamp rejected_at
+        string rejection_reason
+        string journal_entry_no
+        uuid reversal_of_id FK "FK, INDEX"
+        uuid journal_entry_id FK "FK, INDEX"
+        timestamp created_at
+        timestamp updated_at
       }
       pending_entry_lines {
         uuid id PK
-        uuid pending_entry_id FK
-        uuid account_id FK
-        uuid account_category_id FK
+        uuid pending_entry_id FK "FK, INDEX"
+        uuid account_id FK "FK, INDEX"
+        uuid account_category_id FK "FK, INDEX"
         string account_name
         string account_code
         string sub_account_code
@@ -470,32 +492,55 @@
         string subCh
         string subSubCh
         string cost_center
+        timestamp created_at
+        timestamp updated_at
       }
       journal_event_mappings {
         uuid id PK
         string legacy_mongo_id
-        string event_name
+        string event_name "INDEX (unique where is_current = true)"
         int version
         bool is_current
         bool is_active
-        uuid previous_version_id FK
+        uuid previous_version_id FK "FK, INDEX"
+        timestamp created_at
+        timestamp updated_at
       }
       journal_event_mapping_lines {
         uuid id PK
-        uuid journal_event_mapping_id FK
-        uuid account_id FK
+        uuid journal_event_mapping_id FK "FK, INDEX"
+        uuid account_id FK "FK, INDEX"
         string type
         string field
+        string account_name
+        string account_category
+        string product_amount_source
+        string flip_type_when_negative
+        string lob
+        string slob
+        string channel
+        string sub_channel
+        string sub_sub_channel
+        string cost_center
         int sort_order
+        timestamp created_at
+        timestamp updated_at
       }
       failed_journal_entries {
         uuid id PK
         string legacy_mongo_id
         string source_type
-        date transaction_date
+        string source_id "INDEX"
+        string module
+        date transaction_date "INDEX"
+        string currency
         jsonb prepared_payload
         string failure_type
         string status
+        numeric total_debit
+        numeric total_credit
+        numeric imbalance_amount
+        string failure_reason
         string created_by
         string created_by_name
         string created_by_email
@@ -506,13 +551,20 @@
         string approved_by_type
         timestamp approval_date
         string approval_reason
-        uuid resolved_journal_entry_id FK
+        timestamp resolved_at
+        uuid resolved_journal_entry_id FK "FK, INDEX"
+        timestamp created_at
+        timestamp updated_at
       }
       failed_journal_entry_lines {
         uuid id PK
-        uuid failed_journal_entry_id FK
-        uuid account_id FK
-        uuid account_category_id FK
+        uuid failed_journal_entry_id FK "FK, INDEX"
+        uuid account_id FK "FK, INDEX"
+        uuid account_category_id FK "FK, INDEX"
+        string account_name
+        string account_code
+        string sub_account_code
+        string account_no
         string line_type
         numeric amount
         string description
@@ -523,20 +575,28 @@
         string subSubCh
         string cost_center
         string line_failure_reason
+        timestamp created_at
+        timestamp updated_at
       }
       audit_logs {
         uuid id PK
         string event_type
         string table_name
+        string database
+        string description
         string modified_by
-        string generic_id
-        timestamp modified_at
+        string modified_by_name
+        string modified_by_email
+        string modified_by_type
+        string generic_id "INDEX"
+        timestamp modified_at "INDEX"
       }
       audit_log_data_changes {
         uuid id PK
-        uuid audit_log_id FK
+        uuid audit_log_id FK "FK, INDEX"
         string path
         string column_name
+        string field_label
         jsonb old_value
         jsonb new_value
       }
@@ -546,9 +606,16 @@
         string path
         int status
         int duration_ms
+        string ip
+        string user_agent
+        string request_id "UNIQUE INDEX"
+        string trace_id "INDEX"
+        string service_type
+        string service
         string user_id
         jsonb user_agent_details
         jsonb body_preview
+        timestamp created_at "INDEX"
       }
 
       account_categories ||--o{ chart_of_accounts : "category_id"
@@ -563,20 +630,20 @@
       chart_of_accounts ||--o{ journal_event_mapping_lines : "account_id"
       chart_of_accounts ||--o{ failed_journal_entry_lines : "account_id"
 
-      journal_entries ||--o{ journal_lines : "has lines"
+      journal_entries ||--o{ journal_lines : "journal_entry_id"
       journal_entries ||--o{ journal_entries : "reversal_of_id"
       journal_entries |o--o{ pending_entries : "journal_entry_id"
       journal_entries |o--o{ failed_journal_entries : "resolved_journal_entry_id"
 
-      pending_entries ||--o{ pending_entry_lines : "has lines"
+      pending_entries ||--o{ pending_entry_lines : "pending_entry_id"
       pending_entries }o--|| journal_entries : "reversal_of_id"
 
-      journal_event_mappings ||--o{ journal_event_mapping_lines : "has lines"
+      journal_event_mappings ||--o{ journal_event_mapping_lines : "journal_event_mapping_id"
       journal_event_mappings ||--o{ journal_event_mappings : "previous_version_id"
 
-      failed_journal_entries ||--o{ failed_journal_entry_lines : "has lines"
+      failed_journal_entries ||--o{ failed_journal_entry_lines : "failed_journal_entry_id"
 
-      audit_logs ||--o{ audit_log_data_changes : "has changes"
+      audit_logs ||--o{ audit_log_data_changes : "audit_log_id"
     `;
 
     async function drawDiagram(dark) {
